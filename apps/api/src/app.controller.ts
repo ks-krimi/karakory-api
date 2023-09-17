@@ -1,12 +1,23 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, Inject, Param } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 
-@Controller()
+@Controller('users')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(@Inject('AUTH_SERVICE') private authService: ClientProxy) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  async onApplicationBootstrap() {
+    try {
+      await this.authService.connect();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  @Get(':id')
+  async getUser(@Param('id') id: number) {
+    return this.authService.send<any, { userId: number }>(
+      { cmd: 'get_user' },
+      { userId: id },
+    );
   }
 }
