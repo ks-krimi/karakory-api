@@ -1,9 +1,27 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
+
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        RABBITMQ_USER: Joi.string().required(),
+        RABBITMQ_PASS: Joi.string().required(),
+        RABBITMQ_HOST: Joi.string().required(),
+        RABBITMQ_PORT: Joi.number().required(),
+        RABBITMQ_AUTH_QUEUE: Joi.string().required(),
+      }),
+      validationOptions: {
+        allowUnknown: false,
+        abortEarly: true,
+      },
+    }),
+  ],
   controllers: [AuthController],
   providers: [AuthService],
 })
