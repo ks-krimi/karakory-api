@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  message-broker:
+    image: rabbitmq:3.11.23-management
+    container_name: message-broker
+    volumes:
+      - /var/lib/rabbitmq
+    ports:
+      - 5672:5672
+      - 8080:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    env_file:
+      - .env
