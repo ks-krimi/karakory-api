@@ -8,7 +8,6 @@ import { AuthService } from './auth.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
       validationSchema: Joi.object({
         RABBITMQ_USER: Joi.string().required(),
         RABBITMQ_PASS: Joi.string().required(),
@@ -16,6 +15,7 @@ import { AuthService } from './auth.service';
         RABBITMQ_PORT: Joi.number().required(),
         RABBITMQ_AUTH_QUEUE: Joi.string().required(),
       }),
+      ignoreEnvVars: true, // fix: validation of predefined env variables
       validationOptions: {
         allowUnknown: false,
         abortEarly: true,
