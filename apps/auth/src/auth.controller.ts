@@ -25,10 +25,25 @@ export class AuthController {
     const channel = context.getChannelRef();
     const message = context.getMessage();
     channel.ack(message);
-    console.log(
-      `Received message with payload ${JSON.stringify(data)}`,
-      'Auth Service',
-    );
-    return { service: 'Auth Service', params: data.userId };
+    return this.authService.getUser(data.userId);
+  }
+
+  @MessagePattern({ cmd: 'get_users' })
+  async getUsers(@Ctx() context: RmqContext) {
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+    channel.ack(message);
+    return this.authService.getUsers();
+  }
+
+  @MessagePattern({ cmd: 'create_user' })
+  async createUser(
+    @Payload() data: { email: string; password: string },
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+    channel.ack(message);
+    return this.authService.createUser(data);
   }
 }
