@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { dataSourceOptions } from './database/data-source';
 import { User } from './user.entity';
 
 @Module({
@@ -29,7 +30,7 @@ import { User } from './user.entity';
     }),
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      /* imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get('POSTGRES_HOST'),
@@ -38,8 +39,12 @@ import { User } from './user.entity';
         password: configService.get('POSTGRES_PASSWORD'),
         autoLoadEntities: true,
         synchronize: true, // used only for development purposes
+      }), 
+      inject: [ConfigService], */
+      useFactory: () => ({
+        ...dataSourceOptions,
+        autoLoadEntities: true,
       }),
-      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
