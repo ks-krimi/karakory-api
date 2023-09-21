@@ -6,11 +6,15 @@ import {
   RmqContext,
 } from '@nestjs/microservices';
 
+import { SharedService } from '@app/shared';
 import { AuthService } from './auth.service';
 
 @Controller()
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly sharedService: SharedService,
+  ) {}
 
   @Get()
   getHello(): string {
@@ -22,17 +26,13 @@ export class AuthController {
     @Payload() data: { userId: number },
     @Ctx() context: RmqContext,
   ) {
-    const channel = context.getChannelRef();
-    const message = context.getMessage();
-    channel.ack(message);
+    this.sharedService.acknowledge(context);
     return this.authService.getUser(data.userId);
   }
 
   @MessagePattern({ cmd: 'get_users' })
   async getUsers(@Ctx() context: RmqContext) {
-    const channel = context.getChannelRef();
-    const message = context.getMessage();
-    channel.ack(message);
+    this.sharedService.acknowledge(context);
     return this.authService.getUsers();
   }
 
@@ -41,9 +41,7 @@ export class AuthController {
     @Payload() data: { email: string; password: string },
     @Ctx() context: RmqContext,
   ) {
-    const channel = context.getChannelRef();
-    const message = context.getMessage();
-    channel.ack(message);
+    this.sharedService.acknowledge(context);
     return this.authService.createUser(data);
   }
 }
